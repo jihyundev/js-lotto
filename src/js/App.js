@@ -5,6 +5,12 @@ import { Statistics } from "./components/Statistics.js";
 import { createLotto } from "./util.js";
 
 class App {
+  constructor() {
+    this.#setComponents();
+    this.#purchaseDetailElement.hidden = true;
+    this.#tryFormElement.hidden = true;
+  }
+
   #priceInputElement = document.querySelector("#price-input");
   #purchaseDetailElement = document.querySelector("#purchase-detail");
   #tryFormElement = document.querySelector("#try-form");
@@ -16,7 +22,6 @@ class App {
   #statisticsComponent;
 
   #onClickPriceInputConfirmButton = (value) => {
-    console.log(`price input confirm button clicked. value: ${value}`);
     const count = value / 1000;
     let lottos = [];
     for (let i = 0; i < count; i++) {
@@ -53,12 +58,6 @@ class App {
       this.#onModalClose
     );
   };
-
-  constructor() {
-    this.#setComponents();
-    this.#purchaseDetailElement.hidden = true;
-    this.#tryFormElement.hidden = true;
-  }
 }
 
 new App();

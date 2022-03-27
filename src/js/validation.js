@@ -1,15 +1,15 @@
 import { PRICE_INPUT_UNIT } from "./constants.js";
-const canBeDivided = (inputNumber, unit) => {
+
+export const isValidPriceInput = (inputNumber) => {
   if (inputNumber <= 0) {
     return false;
   }
-  return inputNumber % unit === 0;
+  return (
+    typeof inputNumber === "number" && inputNumber % PRICE_INPUT_UNIT === 0
+  );
 };
 
-const isNumber = (input) => {
-  return typeof input === "number";
-};
-
-export const isValidPriceInput = (inputNumber) => {
-  return isNumber(inputNumber) && canBeDivided(inputNumber, PRICE_INPUT_UNIT);
+export const areNumbersNotDuplicated = (numbersArray) => {
+  let orderedArray = Array.from(new Set(numbersArray));
+  return numbersArray.length === orderedArray.length;
 };

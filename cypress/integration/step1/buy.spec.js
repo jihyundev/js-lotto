@@ -1,30 +1,14 @@
 import { INVALID_INPUT_ALERT_STRING } from "../../../src/js/constants.js";
+import { typePriceInput } from "./cypress-util.js";
+import { areNumbersNotDuplicated } from "../../../src/js/validation.js";
 
-describe("Calculator Test", function () {
+describe("화면 렌더링에 관련된 테스트", function () {
   beforeEach(() => {
     cy.visit("http://127.0.0.1:5500/index.html");
   });
 
-  const typePriceInput = (price) => {
-    cy.get(".price-input").type(price);
-    cy.get(".confirm").click();
-  };
-
-  it("로또 금액을 입력하면 적절한 개수의 로또가 발급된다. ", function () {
-    typePriceInput("10000");
-    cy.get("#count-text").should("have.text", "총 10개를 구매하였습니다. ");
-  });
-
-  it("0 이상이고, 천 원 단위로 나뉘어 떨어지는 경우 정상적으로 로또를 발급한다. ", function () {
-    typePriceInput("5000");
-    cy.get("#count-text").should("have.text", "총 5개를 구매하였습니다. ");
-  });
-
-  it("0 이하이거나, 천 원 단위로 나뉘어 떨어지지 않는 경우 에러를 안내해준다. ", function () {
-    typePriceInput("5");
-    cy.on("window:alert", (text) => {
-      expect(text).to.contains(INVALID_INPUT_ALERT_STRING);
-    });
+  it("최초 랜더 시, 로또 금액을 입력할 수 있는 인풋 필드가 존재한다. ", function () {
+    cy.get(".price-input").should("be.visible");
   });
 
   it("구입 금액 입력창에 아무 값이 없을 경우 적절한 placeholder를 보여준다. ", function () {
@@ -37,6 +21,46 @@ describe("Calculator Test", function () {
     cy.get("#purchase-detail").should("not.be.visible");
     typePriceInput("10000");
     cy.get("#purchase-detail").should("be.visible");
+  });
+});
+
+describe("금액 입력과 관련된 테스트", function () {
+  beforeEach(() => {
+    cy.visit("http://127.0.0.1:5500/index.html");
+  });
+
+  it("1000 이상이고, 천 원 단위로 나뉘어 떨어지는 경우 정상적으로 로또를 발급한다. ", function () {
+    typePriceInput("5000");
+    cy.get("#count-text").should("have.text", "총 5개를 구매하였습니다. ");
+  });
+
+  it("0 이하이거나, 천 원 단위로 나뉘어 떨어지지 않는 경우 에러를 안내해준다. ", function () {
+    typePriceInput("5");
+    cy.on("window:alert", (text) => {
+      expect(text).to.contains(INVALID_INPUT_ALERT_STRING);
+    });
+  });
+});
+
+describe("로또 발급과 관련된 테스트", function () {
+  beforeEach(() => {
+    cy.visit("http://127.0.0.1:5500/index.html");
+  });
+
+  it("로또 금액을 입력하면 적절한 개수의 로또가 발급된다. ", function () {
+    typePriceInput("10000");
+    cy.get("#count-text").should("have.text", "총 10개를 구매하였습니다. ");
+  });
+
+  it("발급된 로또 번호들은 중복되지 않는다. ", function () {
+    typePriceInput("10000");
+    cy.get("#purchase-detail section .contents > span:first-child").should(
+      (element) => {
+        const array = element.text().split(",");
+        const validateResult = areNumbersNotDuplicated(array);
+        expect(validateResult).to.equal(true);
+      }
+    );
   });
 
   it("번호보기 토글 버튼을 클릭하면 복권 번호를 보여준다. ", function () {
